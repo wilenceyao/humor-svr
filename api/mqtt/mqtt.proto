@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "github.com/wilenceyao/humor-api/api/mqtt";
+
+package mqtt;
+
+enum Action {
+    NONE = 0;
+    TTS = 1;
+}
+
+message Message {
+    string traceID = 1;
+    Action action = 2;
+    bytes payload = 3;
+}
+
+message TtsPayload {
+    string text = 1;
+}

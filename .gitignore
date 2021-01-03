@@ -1,0 +1,5 @@
+.idea
+humor-api
+*.mp3
+config.json
+humor-api.log
