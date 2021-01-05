@@ -15,6 +15,7 @@ import (
 
 type ApiImpl struct {
 	MqttRpcReqHandler *rpc.Handler
+	MqttClient        *paho.Client
 }
 
 func (a *ApiImpl) GetDevices(c *gin.Context) {

@@ -40,7 +40,7 @@ func RunServer() error {
 		Password:    config.Config.MqttServer.Password,
 		RecvHandler: DefaultServer.rpcDispatcher,
 	}
-	mqttRpcReqHandler, err := util.NewMqttRpcHandler(rpcConfig)
+	mqttClient, mqttRpcReqHandler, err := util.NewMqttRpcHandler(rpcConfig)
 	if err != nil {
 		log.Error().Msgf("InitMqttRpc err: %+v", err)
 		return err
@@ -50,6 +50,7 @@ func RunServer() error {
 	DefaultServer.router = gin.Default()
 	DefaultServer.impl = &ApiImpl{
 		MqttRpcReqHandler: mqttRpcReqHandler,
+		MqttClient:        mqttClient,
 	}
 	DefaultServer.addApi()
 	return DefaultServer.router.Run(fmt.Sprintf(":%d", config.Config.Server.Port))

@@ -22,13 +22,13 @@ func FormatRpcTopic(deviceID string) string {
 	return fmt.Sprintf("rpc/%s", deviceID)
 }
 
-func NewMqttRpcHandler(rpcCfg *MqttRpcConfig) (*rpc.Handler, error) {
+func NewMqttRpcHandler(rpcCfg *MqttRpcConfig) (*paho.Client, *rpc.Handler, error) {
 	log.Info().Msg("NewMqttRpcHandler start")
 	server := fmt.Sprintf("%s:%d", rpcCfg.IP, rpcCfg.Port)
 	conn, err := net.Dial("tcp", server)
 	if err != nil {
 		log.Error().Msgf("connect to mqtt server %s err: %+v", server, err)
-		return nil, err
+		return nil, nil, err
 	}
 	c := paho.NewClient(paho.ClientConfig{
 		Router: paho.NewSingleHandlerRouter(nil),
@@ -47,12 +47,12 @@ func NewMqttRpcHandler(rpcCfg *MqttRpcConfig) (*rpc.Handler, error) {
 	ca, err := c.Connect(context.Background(), cp)
 	if err != nil {
 		log.Error().Msgf("connect mqtt server err: %+v", err)
-		return nil, err
+		return nil, nil, err
 	}
 	if ca.ReasonCode != 0 {
 		err = fmt.Errorf("connect mqtt server failed: %d", ca.ReasonCode)
 		log.Err(err)
-		return nil, err
+		return nil, nil, err
 	}
 	c.Router = paho.NewSingleHandlerRouter(rpcCfg.RecvHandler)
 	rpcTopic := FormatRpcTopic(rpcCfg.ClientID)
@@ -63,13 +63,13 @@ func NewMqttRpcHandler(rpcCfg *MqttRpcConfig) (*rpc.Handler, error) {
 	})
 	if err != nil {
 		log.Error().Msgf("subscribe topic %s err: %+v", rpcTopic, err)
-		return nil, err
+		return nil, nil, err
 	}
 	rpcHandler, err := rpc.NewHandler(c)
 	if err != nil {
 		log.Error().Msgf("build rpc request handler err: %+v", err)
-		return nil, err
+		return nil, nil, err
 	}
 	log.Info().Msg("NewMqttRpcHandler end")
-	return rpcHandler, nil
+	return c, rpcHandler, nil
 }
