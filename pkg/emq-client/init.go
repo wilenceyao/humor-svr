@@ -50,6 +50,9 @@ func (c *EmqClient) get(uri string, resObj interface{}) error {
 		return err
 	}
 	btArr, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 	log.Debug().Msgf("[EMQ API GET] url: %s, res: %s", url, string(btArr))
 	return json.Unmarshal(btArr, resObj)
 }
@@ -69,6 +72,9 @@ func (c *EmqClient) post(uri string, reqObj, resObj interface{}) error {
 		return err
 	}
 	btArr, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 	log.Debug().Msgf("[EMQ API POST] uri: %s, req: %s, res: %s",
 		url, string(reqBtArr), string(btArr))
 	return json.Unmarshal(btArr, resObj)

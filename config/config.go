@@ -11,7 +11,8 @@ var Config *GlobalConfig
 type GlobalConfig struct {
 	Mqtt MqttConfig
 	// 本地管控服务
-	Server ServerConfig
+	Server  ServerConfig
+	LogFile string
 }
 
 type ServerConfig struct {

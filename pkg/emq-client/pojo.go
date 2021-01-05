@@ -52,7 +52,7 @@ type BaseResponse struct {
 type GetClientsResponse struct {
 	BaseResponse
 	Data []Client `json:"data"`
-	Meta Meta     `json:"meta"`
+	Meta Meta      `json:"meta"`
 }
 
 type MqttPublishRequest struct {

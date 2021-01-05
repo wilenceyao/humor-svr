@@ -9,7 +9,7 @@ import (
 func main() {
 	err := internal.RunServer()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("run server err: %+v", err))
+		fmt.Printf("run server err: %+v\n", err)
 		os.Exit(1)
 	}
 }

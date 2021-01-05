@@ -5,3 +5,6 @@ api:
 
 protoc:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=.  api/mqtt/mqtt.proto
+
+lint:
+	golangci-lint run
