@@ -15,6 +15,26 @@ message Message {
     bytes payload = 3;
 }
 
-message TtsPayload {
+enum ErrorCode {
+     SUCCESS = 0;
+     // 参数类错误
+     INVALID_PARAMETERS = 1;
+     UNSUPPORTED_OPERATION = 2;
+     // 内部错误
+     INTERNAL_ERROR = 10;
+     // 外部错误，20开头
+     EXTERNAL_ERROR = 20;
+}
+
+message BaseReply {
+   ErrorCode code = 1;
+   string msg = 2;
+}
+
+message TtsRequest {
     string text = 1;
+}
+
+message TtsReply {
+    BaseReply reply = 1;
 }

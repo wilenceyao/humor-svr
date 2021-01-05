@@ -2,10 +2,12 @@ package internal
 
 import (
 	"fmt"
+	"github.com/eclipse/paho.golang/paho"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/wilenceyao/humor-api/config"
 	emq_client "github.com/wilenceyao/humor-api/pkg/emq-client"
+	"github.com/wilenceyao/humor-api/pkg/util"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -23,21 +25,36 @@ func RunServer() error {
 		return err
 	}
 	setupLog()
-	err = emq_client.InitEmqClient(config.Config.Mqtt.Username, config.Config.Mqtt.Password,
-		config.Config.Mqtt.Ip, config.Config.Mqtt.Port)
+	err = emq_client.InitEmqClient(config.Config.MqttAdmin.Username, config.Config.MqttAdmin.Password,
+		config.Config.MqttAdmin.IP, config.Config.MqttAdmin.Port)
 	if err != nil {
 		log.Error().Msgf("InitEmqClient err: %+v", err)
 		return err
 	}
+	DefaultServer = &Server{}
+	rpcConfig := &util.MqttRpcConfig{
+		ClientID:    config.Config.ClientID,
+		IP:          config.Config.MqttServer.IP,
+		Port:        config.Config.MqttServer.Port,
+		Username:    config.Config.MqttServer.Username,
+		Password:    config.Config.MqttServer.Password,
+		RecvHandler: DefaultServer.rpcDispatcher,
+	}
+	mqttRpcReqHandler, err := util.NewMqttRpcHandler(rpcConfig)
+	if err != nil {
+		log.Error().Msgf("InitMqttRpc err: %+v", err)
+		return err
+	}
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = log.Logger
-	DefaultServer = &Server{
-		router: gin.Default(),
-		impl:   &ApiImpl{},
+	DefaultServer.router = gin.Default()
+	DefaultServer.impl = &ApiImpl{
+		MqttRpcReqHandler: mqttRpcReqHandler,
 	}
-
 	DefaultServer.addApi()
 	return DefaultServer.router.Run(fmt.Sprintf(":%d", config.Config.Server.Port))
+}
+func (s *Server) rpcDispatcher(m *paho.Publish) {
 }
 
 func (s *Server) addApi() {

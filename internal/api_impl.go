@@ -2,15 +2,19 @@ package internal
 
 import (
 	"fmt"
+	"github.com/eclipse/paho.golang/paho"
+	"github.com/eclipse/paho.golang/paho/extensions/rpc"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/proto"
 	"github.com/wilenceyao/humor-api/api/mqtt"
 	"github.com/wilenceyao/humor-api/api/rest"
 	emq_client "github.com/wilenceyao/humor-api/pkg/emq-client"
+	"github.com/wilenceyao/humor-api/pkg/util"
+	"google.golang.org/protobuf/proto"
 	"net/http"
 )
 
 type ApiImpl struct {
+	MqttRpcReqHandler *rpc.Handler
 }
 
 func (a *ApiImpl) GetDevices(c *gin.Context) {
@@ -42,29 +46,31 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 			return
 		}
 	}
-	payload := &mqtt.TtsPayload{
+	payload := &mqtt.TtsRequest{
 		Text: req.Text,
 	}
 	payloadBtArr, _ := proto.Marshal(payload)
-	mqttMsg := &mqtt.Message{
+	mqttReqMsg := &mqtt.Message{
 		TraceID: req.TraceID,
 		Action:  mqtt.Action_TTS,
 		Payload: payloadBtArr,
 	}
-	msgBtArr, _ := proto.Marshal(mqttMsg)
-	mqttReq := &emq_client.MqttPublishRequest{
-		Clientid: "humor-api",
-		Payload:  string(msgBtArr),
-		Topic:    fmt.Sprintf("device/%s", deviceId),
-	}
-	mqttRes, err := emq_client.DefaultEmqClient.MqttPublish(mqttReq)
+	reqMsgBtArr, _ := proto.Marshal(mqttReqMsg)
+	rpcRes, err := a.MqttRpcReqHandler.Request(&paho.Publish{
+		Topic:   util.FormatRpcTopic(deviceId),
+		Payload: reqMsgBtArr,
+	})
 	if err != nil {
 		res.Code = rest.INTERNAL_ERROR
 		res.Msg = err.Error()
 		c.JSON(http.StatusOK, res)
 		return
 	}
-	if mqttRes.Code != 0 {
+	mqttResMsg := &mqtt.Message{}
+	_ = proto.Unmarshal(rpcRes.Payload, mqttResMsg)
+	resPayload := &mqtt.TtsReply{}
+	_ = proto.Unmarshal(mqttResMsg.Payload, resPayload)
+	if resPayload.Reply.Code != mqtt.ErrorCode_SUCCESS {
 		res.Code = rest.EXTERNAL_ERROR
 	}
 	c.JSON(http.StatusOK, res)

@@ -71,6 +71,64 @@ func (Action) EnumDescriptor() ([]byte, []int) {
 	return file_api_mqtt_mqtt_proto_rawDescGZIP(), []int{0}
 }
 
+type ErrorCode int32
+
+const (
+	ErrorCode_SUCCESS ErrorCode = 0
+	// 参数类错误
+	ErrorCode_INVALID_PARAMETERS    ErrorCode = 1
+	ErrorCode_UNSUPPORTED_OPERATION ErrorCode = 2
+	// 内部错误
+	ErrorCode_INTERNAL_ERROR ErrorCode = 10
+	// 外部错误，20开头
+	ErrorCode_EXTERNAL_ERROR ErrorCode = 20
+)
+
+// Enum value maps for ErrorCode.
+var (
+	ErrorCode_name = map[int32]string{
+		0:  "SUCCESS",
+		1:  "INVALID_PARAMETERS",
+		2:  "UNSUPPORTED_OPERATION",
+		10: "INTERNAL_ERROR",
+		20: "EXTERNAL_ERROR",
+	}
+	ErrorCode_value = map[string]int32{
+		"SUCCESS":               0,
+		"INVALID_PARAMETERS":    1,
+		"UNSUPPORTED_OPERATION": 2,
+		"INTERNAL_ERROR":        10,
+		"EXTERNAL_ERROR":        20,
+	}
+)
+
+func (x ErrorCode) Enum() *ErrorCode {
+	p := new(ErrorCode)
+	*p = x
+	return p
+}
+
+func (x ErrorCode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ErrorCode) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_mqtt_mqtt_proto_enumTypes[1].Descriptor()
+}
+
+func (ErrorCode) Type() protoreflect.EnumType {
+	return &file_api_mqtt_mqtt_proto_enumTypes[1]
+}
+
+func (x ErrorCode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ErrorCode.Descriptor instead.
+func (ErrorCode) EnumDescriptor() ([]byte, []int) {
+	return file_api_mqtt_mqtt_proto_rawDescGZIP(), []int{1}
+}
+
 type Message struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -134,16 +192,17 @@ func (x *Message) GetPayload() []byte {
 	return nil
 }
 
-type TtsPayload struct {
+type BaseReply struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	Code ErrorCode `protobuf:"varint,1,opt,name=code,proto3,enum=mqtt.ErrorCode" json:"code,omitempty"`
+	Msg  string    `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
 }
 
-func (x *TtsPayload) Reset() {
-	*x = TtsPayload{}
+func (x *BaseReply) Reset() {
+	*x = BaseReply{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_mqtt_mqtt_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -151,13 +210,13 @@ func (x *TtsPayload) Reset() {
 	}
 }
 
-func (x *TtsPayload) String() string {
+func (x *BaseReply) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TtsPayload) ProtoMessage() {}
+func (*BaseReply) ProtoMessage() {}
 
-func (x *TtsPayload) ProtoReflect() protoreflect.Message {
+func (x *BaseReply) ProtoReflect() protoreflect.Message {
 	mi := &file_api_mqtt_mqtt_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -169,16 +228,117 @@ func (x *TtsPayload) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TtsPayload.ProtoReflect.Descriptor instead.
-func (*TtsPayload) Descriptor() ([]byte, []int) {
+// Deprecated: Use BaseReply.ProtoReflect.Descriptor instead.
+func (*BaseReply) Descriptor() ([]byte, []int) {
 	return file_api_mqtt_mqtt_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TtsPayload) GetText() string {
+func (x *BaseReply) GetCode() ErrorCode {
+	if x != nil {
+		return x.Code
+	}
+	return ErrorCode_SUCCESS
+}
+
+func (x *BaseReply) GetMsg() string {
+	if x != nil {
+		return x.Msg
+	}
+	return ""
+}
+
+type TtsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+}
+
+func (x *TtsRequest) Reset() {
+	*x = TtsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_mqtt_mqtt_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TtsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TtsRequest) ProtoMessage() {}
+
+func (x *TtsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_mqtt_mqtt_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TtsRequest.ProtoReflect.Descriptor instead.
+func (*TtsRequest) Descriptor() ([]byte, []int) {
+	return file_api_mqtt_mqtt_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TtsRequest) GetText() string {
 	if x != nil {
 		return x.Text
 	}
 	return ""
+}
+
+type TtsReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Reply *BaseReply `protobuf:"bytes,1,opt,name=reply,proto3" json:"reply,omitempty"`
+}
+
+func (x *TtsReply) Reset() {
+	*x = TtsReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_mqtt_mqtt_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TtsReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TtsReply) ProtoMessage() {}
+
+func (x *TtsReply) ProtoReflect() protoreflect.Message {
+	mi := &file_api_mqtt_mqtt_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TtsReply.ProtoReflect.Descriptor instead.
+func (*TtsReply) Descriptor() ([]byte, []int) {
+	return file_api_mqtt_mqtt_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TtsReply) GetReply() *BaseReply {
+	if x != nil {
+		return x.Reply
+	}
+	return nil
 }
 
 var File_api_mqtt_mqtt_proto protoreflect.FileDescriptor
@@ -192,14 +352,28 @@ var file_api_mqtt_mqtt_proto_rawDesc = []byte{
 	0x32, 0x0c, 0x2e, 0x6d, 0x71, 0x74, 0x74, 0x2e, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x06,
 	0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61,
 	0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64,
-	0x22, 0x20, 0x0a, 0x0a, 0x54, 0x74, 0x73, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x12,
-	0x0a, 0x04, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65,
-	0x78, 0x74, 0x2a, 0x1b, 0x0a, 0x06, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x08, 0x0a, 0x04,
-	0x4e, 0x4f, 0x4e, 0x45, 0x10, 0x00, 0x12, 0x07, 0x0a, 0x03, 0x54, 0x54, 0x53, 0x10, 0x01, 0x42,
-	0x2a, 0x5a, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77, 0x69,
-	0x6c, 0x65, 0x6e, 0x63, 0x65, 0x79, 0x61, 0x6f, 0x2f, 0x68, 0x75, 0x6d, 0x6f, 0x72, 0x2d, 0x61,
-	0x70, 0x69, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x71, 0x74, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x22, 0x42, 0x0a, 0x09, 0x42, 0x61, 0x73, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x23, 0x0a,
+	0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x0f, 0x2e, 0x6d, 0x71,
+	0x74, 0x74, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x43, 0x6f, 0x64, 0x65, 0x52, 0x04, 0x63, 0x6f,
+	0x64, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x03, 0x6d, 0x73, 0x67, 0x22, 0x20, 0x0a, 0x0a, 0x54, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x22, 0x31, 0x0a, 0x08, 0x54, 0x74, 0x73, 0x52, 0x65, 0x70,
+	0x6c, 0x79, 0x12, 0x25, 0x0a, 0x05, 0x72, 0x65, 0x70, 0x6c, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x0f, 0x2e, 0x6d, 0x71, 0x74, 0x74, 0x2e, 0x42, 0x61, 0x73, 0x65, 0x52, 0x65, 0x70,
+	0x6c, 0x79, 0x52, 0x05, 0x72, 0x65, 0x70, 0x6c, 0x79, 0x2a, 0x1b, 0x0a, 0x06, 0x41, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x12, 0x08, 0x0a, 0x04, 0x4e, 0x4f, 0x4e, 0x45, 0x10, 0x00, 0x12, 0x07, 0x0a,
+	0x03, 0x54, 0x54, 0x53, 0x10, 0x01, 0x2a, 0x73, 0x0a, 0x09, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x43,
+	0x6f, 0x64, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x00,
+	0x12, 0x16, 0x0a, 0x12, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44, 0x5f, 0x50, 0x41, 0x52, 0x41,
+	0x4d, 0x45, 0x54, 0x45, 0x52, 0x53, 0x10, 0x01, 0x12, 0x19, 0x0a, 0x15, 0x55, 0x4e, 0x53, 0x55,
+	0x50, 0x50, 0x4f, 0x52, 0x54, 0x45, 0x44, 0x5f, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x49, 0x4f,
+	0x4e, 0x10, 0x02, 0x12, 0x12, 0x0a, 0x0e, 0x49, 0x4e, 0x54, 0x45, 0x52, 0x4e, 0x41, 0x4c, 0x5f,
+	0x45, 0x52, 0x52, 0x4f, 0x52, 0x10, 0x0a, 0x12, 0x12, 0x0a, 0x0e, 0x45, 0x58, 0x54, 0x45, 0x52,
+	0x4e, 0x41, 0x4c, 0x5f, 0x45, 0x52, 0x52, 0x4f, 0x52, 0x10, 0x14, 0x42, 0x2a, 0x5a, 0x28, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77, 0x69, 0x6c, 0x65, 0x6e, 0x63,
+	0x65, 0x79, 0x61, 0x6f, 0x2f, 0x68, 0x75, 0x6d, 0x6f, 0x72, 0x2d, 0x61, 0x70, 0x69, 0x2f, 0x61,
+	0x70, 0x69, 0x2f, 0x6d, 0x71, 0x74, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -214,20 +388,25 @@ func file_api_mqtt_mqtt_proto_rawDescGZIP() []byte {
 	return file_api_mqtt_mqtt_proto_rawDescData
 }
 
-var file_api_mqtt_mqtt_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_mqtt_mqtt_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_api_mqtt_mqtt_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_api_mqtt_mqtt_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_api_mqtt_mqtt_proto_goTypes = []interface{}{
 	(Action)(0),        // 0: mqtt.Action
-	(*Message)(nil),    // 1: mqtt.Message
-	(*TtsPayload)(nil), // 2: mqtt.TtsPayload
+	(ErrorCode)(0),     // 1: mqtt.ErrorCode
+	(*Message)(nil),    // 2: mqtt.Message
+	(*BaseReply)(nil),  // 3: mqtt.BaseReply
+	(*TtsRequest)(nil), // 4: mqtt.TtsRequest
+	(*TtsReply)(nil),   // 5: mqtt.TtsReply
 }
 var file_api_mqtt_mqtt_proto_depIdxs = []int32{
 	0, // 0: mqtt.Message.action:type_name -> mqtt.Action
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 1: mqtt.BaseReply.code:type_name -> mqtt.ErrorCode
+	3, // 2: mqtt.TtsReply.reply:type_name -> mqtt.BaseReply
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_mqtt_mqtt_proto_init() }
@@ -249,7 +428,31 @@ func file_api_mqtt_mqtt_proto_init() {
 			}
 		}
 		file_api_mqtt_mqtt_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TtsPayload); i {
+			switch v := v.(*BaseReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_mqtt_mqtt_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TtsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_mqtt_mqtt_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TtsReply); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -266,8 +469,8 @@ func file_api_mqtt_mqtt_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_mqtt_mqtt_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   2,
+			NumEnums:      2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

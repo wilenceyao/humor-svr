@@ -9,7 +9,9 @@ import (
 var Config *GlobalConfig
 
 type GlobalConfig struct {
-	Mqtt MqttConfig
+	ClientID   string
+	MqttAdmin  MqttAdminConfig
+	MqttServer MqttServerConfig
 	// 本地管控服务
 	Server  ServerConfig
 	LogFile string
@@ -19,21 +21,18 @@ type ServerConfig struct {
 	Port int
 }
 
-type QCloudConfig struct {
-	SecretId  string
-	SecretKey string
-	TtsConfig QCloudTtsConfig
-}
-
-type MqttConfig struct {
-	Ip       string
+type MqttAdminConfig struct {
+	IP       string
 	Port     uint
 	Username string
 	Password string
 }
 
-type QCloudTtsConfig struct {
-	VoiceType int64
+type MqttServerConfig struct {
+	IP       string
+	Port     uint
+	Username string
+	Password string
 }
 
 func InitConfig(path string) error {
