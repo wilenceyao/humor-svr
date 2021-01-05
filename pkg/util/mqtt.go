@@ -1,4 +1,4 @@
-package humor_util
+package util
 
 import "fmt"
 
