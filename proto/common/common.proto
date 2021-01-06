@@ -1,0 +1,14 @@
+syntax = "proto3";
+package common;
+option go_package = "github.com/wilenceyao/humor-api/proto/common";
+
+enum ErrorCode {
+     SUCCESS = 0;
+     // 参数类错误
+     INVALID_PARAMETERS = 1;
+     UNSUPPORTED_OPERATION = 2;
+     // 内部错误
+     INTERNAL_ERROR = 10;
+     // 外部错误，20开头
+     EXTERNAL_ERROR = 20;
+}

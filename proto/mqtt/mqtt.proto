@@ -1,33 +1,33 @@
 syntax = "proto3";
-
+package mqtt;
 option go_package = "github.com/wilenceyao/humor-api/api/mqtt";
 
-package mqtt;
+import "proto/common/common.proto";
 
 enum Action {
+    // [1, 1000] api -> agent
     NONE = 0;
     TTS = 1;
+    // [1001, 2000] agent -> api
 }
 
-message Message {
+message RequestMessage {
     string traceID = 1;
     Action action = 2;
     bytes payload = 3;
 }
 
-enum ErrorCode {
-     SUCCESS = 0;
-     // 参数类错误
-     INVALID_PARAMETERS = 1;
-     UNSUPPORTED_OPERATION = 2;
-     // 内部错误
-     INTERNAL_ERROR = 10;
-     // 外部错误，20开头
-     EXTERNAL_ERROR = 20;
+message ReplyMessage {
+    string traceID = 1;
+    Action action = 2;
+    bytes payload = 3;
+    // RPC系统错误
+    common.ErrorCode code = 4;
+    string msg = 5;
 }
 
 message BaseReply {
-   ErrorCode code = 1;
+   common.ErrorCode code = 1;
    string msg = 2;
 }
 

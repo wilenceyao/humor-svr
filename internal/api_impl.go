@@ -2,20 +2,17 @@ package internal
 
 import (
 	"fmt"
-	"github.com/eclipse/paho.golang/paho"
-	"github.com/eclipse/paho.golang/paho/extensions/rpc"
 	"github.com/gin-gonic/gin"
-	"github.com/wilenceyao/humor-api/api/mqtt"
-	"github.com/wilenceyao/humor-api/api/rest"
+	"github.com/rs/zerolog/log"
 	emq_client "github.com/wilenceyao/humor-api/pkg/emq-client"
-	"github.com/wilenceyao/humor-api/pkg/util"
-	"google.golang.org/protobuf/proto"
+	"github.com/wilenceyao/humor-api/pkg/mqttrpc"
+	"github.com/wilenceyao/humor-api/proto/common"
+	"github.com/wilenceyao/humor-api/proto/mqtt"
+	"github.com/wilenceyao/humor-api/proto/rest"
 	"net/http"
 )
 
 type ApiImpl struct {
-	MqttRpcReqHandler *rpc.Handler
-	MqttClient        *paho.Client
 }
 
 func (a *ApiImpl) GetDevices(c *gin.Context) {
@@ -37,41 +34,23 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 		c.JSON(http.StatusOK, res)
 		return
 	}
+	log.Info().Msgf("before getde")
 	deviceId := req.DeviceID
 	if deviceId == "" {
 		deviceId, err = a.getDefaultDevice()
 		if err != nil {
 			res.Code = rest.UNSUPPORTED_OPERATION
-			res.Msg = "no device"
+			res.Msg = "no device available"
 			c.JSON(http.StatusOK, res)
 			return
 		}
 	}
-	payload := &mqtt.TtsRequest{
+	mqttReq := &mqtt.TtsRequest{
 		Text: req.Text,
 	}
-	payloadBtArr, _ := proto.Marshal(payload)
-	mqttReqMsg := &mqtt.Message{
-		TraceID: req.TraceID,
-		Action:  mqtt.Action_TTS,
-		Payload: payloadBtArr,
-	}
-	reqMsgBtArr, _ := proto.Marshal(mqttReqMsg)
-	rpcRes, err := a.MqttRpcReqHandler.Request(&paho.Publish{
-		Topic:   util.FormatAgentRpcTopic(deviceId),
-		Payload: reqMsgBtArr,
-	})
-	if err != nil {
-		res.Code = rest.INTERNAL_ERROR
-		res.Msg = err.Error()
-		c.JSON(http.StatusOK, res)
-		return
-	}
-	mqttResMsg := &mqtt.Message{}
-	_ = proto.Unmarshal(rpcRes.Payload, mqttResMsg)
-	resPayload := &mqtt.TtsReply{}
-	_ = proto.Unmarshal(mqttResMsg.Payload, resPayload)
-	if resPayload.Reply.Code != mqtt.ErrorCode_SUCCESS {
+	mqttRes := &mqtt.TtsReply{}
+	err = mqttrpc.CallMqttRpc(mqttrpc.FormatAgentRpcTopic(deviceId), req.TraceID, mqtt.Action_TTS, mqttReq, mqttRes)
+	if mqttRes.Reply.Code != common.ErrorCode_SUCCESS {
 		res.Code = rest.EXTERNAL_ERROR
 	}
 	c.JSON(http.StatusOK, res)

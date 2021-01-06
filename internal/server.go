@@ -2,16 +2,18 @@ package internal
 
 import (
 	"fmt"
-	"github.com/eclipse/paho.golang/paho"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/wilenceyao/humor-api/config"
 	emq_client "github.com/wilenceyao/humor-api/pkg/emq-client"
-	"github.com/wilenceyao/humor-api/pkg/util"
+	"github.com/wilenceyao/humor-api/pkg/mqttrpc"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"io"
+	stdlog "log"
 )
 
 var DefaultServer *Server
+var LogFileWriter io.Writer
 
 type Server struct {
 	router *gin.Engine
@@ -32,30 +34,25 @@ func RunServer() error {
 		return err
 	}
 	DefaultServer = &Server{}
-	rpcConfig := &util.MqttRpcConfig{
-		IP:          config.Config.MqttServer.IP,
-		Port:        config.Config.MqttServer.Port,
-		Username:    config.Config.MqttServer.Username,
-		Password:    config.Config.MqttServer.Password,
-		RecvHandler: DefaultServer.rpcDispatcher,
-		RpcTopic:    util.HUMOR_API_RPC_TOPIC,
+	rpcConfig := &mqttrpc.MqttRpcConfig{
+		IP:       config.Config.MqttServer.IP,
+		Port:     config.Config.MqttServer.Port,
+		Username: config.Config.MqttServer.Username,
+		Password: config.Config.MqttServer.Password,
+		RpcTopic: mqttrpc.HUMOR_API_RPC_TOPIC,
 	}
-	mqttClient, mqttRpcReqHandler, err := util.NewMqttRpcHandler(rpcConfig)
+	err = mqttrpc.InitMqttClient(rpcConfig)
 	if err != nil {
-		log.Error().Msgf("InitMqttRpc err: %+v", err)
+		log.Error().Msgf("InitMqttClient err: %+v", err)
 		return err
 	}
 	gin.SetMode(gin.ReleaseMode)
-	gin.DefaultWriter = log.Logger
+	//gin.DefaultWriter = LogFileWriter
 	DefaultServer.router = gin.Default()
 	DefaultServer.impl = &ApiImpl{
-		MqttRpcReqHandler: mqttRpcReqHandler,
-		MqttClient:        mqttClient,
 	}
 	DefaultServer.addApi()
 	return DefaultServer.router.Run(fmt.Sprintf(":%d", config.Config.Server.Port))
-}
-func (s *Server) rpcDispatcher(m *paho.Publish) {
 }
 
 func (s *Server) addApi() {
@@ -64,12 +61,13 @@ func (s *Server) addApi() {
 }
 
 func setupLog() {
-	h := &lumberjack.Logger{
+	LogFileWriter = &lumberjack.Logger{
 		Filename:   config.Config.LogFile,
 		MaxSize:    100,  // megabytes
 		MaxBackups: 10,   // 最多50个日志文件，因而只保留49个旧日志备份
 		MaxAge:     10,   //days
 		Compress:   true, // disabled by default
 	}
-	log.Logger = log.With().Caller().Logger().Output(h)
+	stdlog.SetOutput(LogFileWriter)
+	log.Logger = log.With().Caller().Logger().Output(LogFileWriter)
 }
