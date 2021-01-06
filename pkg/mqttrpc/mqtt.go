@@ -42,7 +42,7 @@ func FormatAgentRpcTopic(deviceID string) string {
 
 func CallMqttRpc(topic, traceID string, action mqtt.Action, serviceReq proto.Message,
 	serviceRes proto.Message) error {
-	log.Info().Msgf("CallMqttRpc request: %s %s %v %+v", traceID, topic, action, serviceReq)
+	log.Info().Msgf("CallMqttRpc request: %s %s %s %+v", traceID, topic, action.String(), serviceReq)
 	payloadBtArr, _ := proto.Marshal(serviceReq)
 	mqttReq := &mqtt.RequestMessage{
 		TraceID: traceID,
@@ -108,7 +108,7 @@ func InitMqttClient(rpcCfg *MqttRpcConfig) error {
 		Router: paho.NewSingleHandlerRouter(nil),
 		Conn:   conn,
 	})
-
+	DefaultMqttClient.Router = paho.NewSingleHandlerRouter(RpcMessageHandler)
 	cp := &paho.Connect{
 		KeepAlive:    30,
 		CleanStart:   true,
@@ -128,10 +128,9 @@ func InitMqttClient(rpcCfg *MqttRpcConfig) error {
 		log.Err(err)
 		return err
 	}
-	DefaultMqttClient.Router = paho.NewSingleHandlerRouter(RpcMessageHandler)
 	_, err = DefaultMqttClient.Subscribe(context.Background(), &paho.Subscribe{
 		Subscriptions: map[string]paho.SubscribeOptions{
-			rpcCfg.RpcTopic: {QoS: 0},
+			rpcCfg.RpcTopic: {QoS: 1},
 		},
 	})
 	if err != nil {
