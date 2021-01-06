@@ -58,7 +58,7 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 	}
 	reqMsgBtArr, _ := proto.Marshal(mqttReqMsg)
 	rpcRes, err := a.MqttRpcReqHandler.Request(&paho.Publish{
-		Topic:   util.FormatRpcTopic(deviceId),
+		Topic:   util.FormatAgentRpcTopic(deviceId),
 		Payload: reqMsgBtArr,
 	})
 	if err != nil {

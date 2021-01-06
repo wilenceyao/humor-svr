@@ -9,7 +9,6 @@ import (
 var Config *GlobalConfig
 
 type GlobalConfig struct {
-	ClientID   string
 	MqttAdmin  MqttAdminConfig
 	MqttServer MqttServerConfig
 	// 本地管控服务

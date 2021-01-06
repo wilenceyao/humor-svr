@@ -33,12 +33,12 @@ func RunServer() error {
 	}
 	DefaultServer = &Server{}
 	rpcConfig := &util.MqttRpcConfig{
-		ClientID:    config.Config.ClientID,
 		IP:          config.Config.MqttServer.IP,
 		Port:        config.Config.MqttServer.Port,
 		Username:    config.Config.MqttServer.Username,
 		Password:    config.Config.MqttServer.Password,
 		RecvHandler: DefaultServer.rpcDispatcher,
+		RpcTopic:    util.HUMOR_API_RPC_TOPIC,
 	}
 	mqttClient, mqttRpcReqHandler, err := util.NewMqttRpcHandler(rpcConfig)
 	if err != nil {

@@ -9,6 +9,8 @@ import (
 	"net"
 )
 
+var HUMOR_API_RPC_TOPIC string = "$share/humor-api/rpc"
+
 type MqttRpcConfig struct {
 	ClientID    string
 	IP          string
@@ -16,9 +18,10 @@ type MqttRpcConfig struct {
 	Username    string
 	Password    string
 	RecvHandler paho.MessageHandler
+	RpcTopic    string
 }
 
-func FormatRpcTopic(deviceID string) string {
+func FormatAgentRpcTopic(deviceID string) string {
 	return fmt.Sprintf("rpc/%s", deviceID)
 }
 
@@ -55,14 +58,13 @@ func NewMqttRpcHandler(rpcCfg *MqttRpcConfig) (*paho.Client, *rpc.Handler, error
 		return nil, nil, err
 	}
 	c.Router = paho.NewSingleHandlerRouter(rpcCfg.RecvHandler)
-	rpcTopic := FormatRpcTopic(rpcCfg.ClientID)
 	_, err = c.Subscribe(context.Background(), &paho.Subscribe{
 		Subscriptions: map[string]paho.SubscribeOptions{
-			rpcTopic: {QoS: 0},
+			rpcCfg.RpcTopic: {QoS: 0},
 		},
 	})
 	if err != nil {
-		log.Error().Msgf("subscribe topic %s err: %+v", rpcTopic, err)
+		log.Error().Msgf("subscribe topic %s err: %+v", rpcCfg.RpcTopic, err)
 		return nil, nil, err
 	}
 	rpcHandler, err := rpc.NewHandler(c)
