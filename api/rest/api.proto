@@ -3,7 +3,7 @@ package rest;
 
 import "api/common/common.proto";
 
-option go_package = "github.com/wilenceyao/humor-api/api/rest";
+option go_package = "github.com/wilenceyao/humor-svr/api/rest";
 
 message TtsRequest {
     common.BaseRequest request = 1;

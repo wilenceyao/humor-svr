@@ -1,5 +1,3 @@
 .idea
-humor-api
-*.mp3
+humor-svr
 config.json
-humor-api.log

@@ -1,6 +1,6 @@
 syntax = "proto3";
 package common;
-option go_package = "github.com/wilenceyao/humor-api/api/common";
+option go_package = "github.com/wilenceyao/humor-svr/api/common";
 
 enum ErrorCode {
      SUCCESS = 0;

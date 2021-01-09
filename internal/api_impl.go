@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/wilenceyao/humor-api/api/common"
-	"github.com/wilenceyao/humor-api/api/rest"
-	emq_client "github.com/wilenceyao/humor-api/pkg/emq-client"
+	"github.com/wilenceyao/humor-svr/api/common"
+	"github.com/wilenceyao/humor-svr/api/rest"
+	emq_client "github.com/wilenceyao/humor-svr/pkg/emq-client"
 	"github.com/wilenceyao/humors"
 	"net/http"
 )

@@ -1,5 +1,5 @@
-# humor-api
+# humor-svr
 
 humor系统的API服务
 
-![](https://travis-ci.com/wilenceyao/humor-api.svg?branch=master)
+![](https://travis-ci.com/wilenceyao/humor-svr.svg?branch=master)
