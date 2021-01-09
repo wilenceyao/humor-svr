@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/wilenceyao/humor-svr/api/common"
-	"github.com/wilenceyao/humor-svr/api/rest"
+	humoragent "github.com/wilenceyao/humor-api/agent/humor"
+	"github.com/wilenceyao/humor-api/common"
+	"github.com/wilenceyao/humor-api/svr/rest"
 	emq_client "github.com/wilenceyao/humor-svr/pkg/emq-client"
 	"github.com/wilenceyao/humors"
 	"net/http"
 )
 
 type ApiImpl struct {
-	 Adaptor *humors.HumorAdaptor
+	Adaptor *humors.HumorAdaptor
 }
 
 func (a *ApiImpl) GetDevices(c *gin.Context) {
@@ -37,10 +38,9 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 		c.JSON(http.StatusOK, res)
 		return
 	}
-	log.Info().Msgf("before getde")
-	deviceId := req.DeviceID
-	if deviceId == "" {
-		deviceId, err = a.getDefaultDevice()
+	clientID := req.ClientID
+	if clientID == "" {
+		clientID, err = a.getDefaultClient()
 		if err != nil {
 			res.Response.Code = common.ErrorCode_UNSUPPORTED_OPERATION
 			res.Response.Msg = "no device available"
@@ -48,12 +48,25 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 			return
 		}
 	}
-	// TODO
-
+	agentReq := &humoragent.TtsRequest{
+		Request: req.Request,
+		Text:    req.Text,
+	}
+	agentRes := &humoragent.TtsResponse{
+		Response: &common.BaseResponse{},
+	}
+	err = a.Adaptor.Call(clientID, int32(humoragent.Action_TTS), agentReq, agentRes)
+	if err != nil {
+		log.Error().Msgf("call agent err: %v", err)
+		res.Response.Code = common.ErrorCode_INTERNAL_ERROR
+	} else {
+		res.Response.Code = agentRes.Response.Code
+		res.Response.Msg = agentRes.Response.Msg
+	}
 	c.JSON(http.StatusOK, res)
 }
 
-func (a *ApiImpl) getDefaultDevice() (string, error) {
+func (a *ApiImpl) getDefaultClient() (string, error) {
 	getClientsRes, err := emq_client.DefaultEmqClient.GetClients()
 	if err != nil {
 		return "", err

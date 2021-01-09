@@ -5,7 +5,7 @@ api:
 
 protoc:
 	protoc --go_out=. --go_opt=paths=source_relative api/common/common.proto
-	protoc --go_out=. --go_opt=paths=source_relative api/rest/api.proto
+	protoc --go_out=. --go_opt=paths=source_relative api/svr/rest/api.proto
 
 lint:
 	golangci-lint run
