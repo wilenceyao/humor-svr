@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+	"github.com/wilenceyao/humor-api/api/common"
+	"github.com/wilenceyao/humor-api/api/rest"
 	emq_client "github.com/wilenceyao/humor-api/pkg/emq-client"
-	"github.com/wilenceyao/humor-api/pkg/mqttrpc"
-	"github.com/wilenceyao/humor-api/proto/common"
-	"github.com/wilenceyao/humor-api/proto/mqtt"
-	"github.com/wilenceyao/humor-api/proto/rest"
+	"github.com/wilenceyao/humors"
 	"net/http"
 )
 
 type ApiImpl struct {
+	 Adaptor *humors.HumorAdaptor
 }
 
 func (a *ApiImpl) GetDevices(c *gin.Context) {
@@ -21,16 +21,19 @@ func (a *ApiImpl) GetDevices(c *gin.Context) {
 }
 
 func (a *ApiImpl) SendTts(c *gin.Context) {
-	var req rest.SendTtsRequest
-	res := &rest.SendTtsResponse{}
+	var req rest.TtsRequest
+	res := &rest.TtsResponse{
+		Response: &common.BaseResponse{
+		},
+	}
 	var err error
 	if err = c.ShouldBindJSON(&req); err != nil {
-		res.Code = rest.INVALID_PARAMETERS
+		res.Response.Code = common.ErrorCode_INVALID_PARAMETERS
 		c.JSON(http.StatusOK, res)
 		return
 	}
-	if req.TraceID == "" || req.Text == "" {
-		res.Code = rest.INVALID_PARAMETERS
+	if req.Request.RequestID == "" || req.Text == "" {
+		res.Response.Code = common.ErrorCode_INVALID_PARAMETERS
 		c.JSON(http.StatusOK, res)
 		return
 	}
@@ -39,20 +42,14 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 	if deviceId == "" {
 		deviceId, err = a.getDefaultDevice()
 		if err != nil {
-			res.Code = rest.UNSUPPORTED_OPERATION
-			res.Msg = "no device available"
+			res.Response.Code = common.ErrorCode_UNSUPPORTED_OPERATION
+			res.Response.Msg = "no device available"
 			c.JSON(http.StatusOK, res)
 			return
 		}
 	}
-	mqttReq := &mqtt.TtsRequest{
-		Text: req.Text,
-	}
-	mqttRes := &mqtt.TtsReply{}
-	err = mqttrpc.CallMqttRpc(mqttrpc.FormatAgentRpcTopic(deviceId), req.TraceID, mqtt.Action_TTS, mqttReq, mqttRes)
-	if mqttRes.Reply.Code != common.ErrorCode_SUCCESS {
-		res.Code = rest.EXTERNAL_ERROR
-	}
+	// TODO
+
 	c.JSON(http.StatusOK, res)
 }
 

@@ -32,6 +32,7 @@ type MqttServerConfig struct {
 	Port     uint
 	Username string
 	Password string
+	ClientID string
 }
 
 func InitConfig(path string) error {

@@ -1,6 +1,6 @@
 syntax = "proto3";
 package common;
-option go_package = "github.com/wilenceyao/humor-api/proto/common";
+option go_package = "github.com/wilenceyao/humor-api/api/common";
 
 enum ErrorCode {
      SUCCESS = 0;
@@ -11,4 +11,14 @@ enum ErrorCode {
      INTERNAL_ERROR = 10;
      // 外部错误，20开头
      EXTERNAL_ERROR = 20;
+}
+
+
+message BaseRequest {
+    string RequestID = 1;
+}
+
+message BaseResponse {
+    ErrorCode code = 1;
+    string msg = 2;
 }
