@@ -12,8 +12,9 @@ type GlobalConfig struct {
 	MqttAdmin  MqttAdminConfig
 	MqttServer MqttServerConfig
 	// 本地管控服务
-	Server  ServerConfig
-	LogFile string
+	Server        ServerConfig
+	LogFile       string
+	AgentClientID string
 }
 
 type ServerConfig struct {

@@ -60,8 +60,8 @@ func RunServer() error {
 }
 
 func (s *Server) addApi() {
-	s.router.POST("getDevices", s.impl.GetDevices)
 	s.router.POST("tts", s.impl.SendTts)
+	s.router.POST("weather", s.impl.Weather)
 }
 
 func setupLog() {

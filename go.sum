@@ -80,6 +80,10 @@ github.com/wilenceyao/humor-api v0.0.0-20210109060742-9ea179ec4b01 h1:CDdrWZZf6S
 github.com/wilenceyao/humor-api v0.0.0-20210109060742-9ea179ec4b01/go.mod h1:XgnUpfa75SWHrTaQ7EzzuqspROn94RRk0z2TB8jJ9WQ=
 github.com/wilenceyao/humor-api v0.0.0-20210109061451-cc70fc1e2190 h1:DKMwOeO+kllj+aVcAZCliCGkBHmdRWODJObgTiUymGM=
 github.com/wilenceyao/humor-api v0.0.0-20210109061451-cc70fc1e2190/go.mod h1:XgnUpfa75SWHrTaQ7EzzuqspROn94RRk0z2TB8jJ9WQ=
+github.com/wilenceyao/humor-api v0.0.0-20210109120412-14cd989e3bb4 h1:BRoe1eglIG8QJP5X/sgSTbIrfnnkJvo8Cm9JJolhzvQ=
+github.com/wilenceyao/humor-api v0.0.0-20210109120412-14cd989e3bb4/go.mod h1:XgnUpfa75SWHrTaQ7EzzuqspROn94RRk0z2TB8jJ9WQ=
+github.com/wilenceyao/humor-api v0.0.0-20210109133839-f318acc1ba55 h1:l0jtDc/l1PLU+BzT+jk+CWb8orZ2YZK96nhvSJZ500o=
+github.com/wilenceyao/humor-api v0.0.0-20210109133839-f318acc1ba55/go.mod h1:XgnUpfa75SWHrTaQ7EzzuqspROn94RRk0z2TB8jJ9WQ=
 github.com/wilenceyao/humors v0.0.0-20210109045018-d26b1b7c4d30 h1:arfjJ/TpBwzIHV7kMh5kq1tv0aUI+1Y8c9J+lJN2AFU=
 github.com/wilenceyao/humors v0.0.0-20210109045018-d26b1b7c4d30/go.mod h1:Fqyrjq8KP89HRCyBMzuSCgBkuX9vdcUOdjPS1ounIGs=
 github.com/wilenceyao/humors v1.0.0 h1:PTwhZtFX9T+Sf5y3nf4vhpFovshuZh8UVDn2nNwbp6E=
