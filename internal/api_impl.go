@@ -1,18 +1,18 @@
 package internal
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	agentapi "github.com/wilenceyao/humor-api/agent/humor"
 	"github.com/wilenceyao/humor-api/common"
 	"github.com/wilenceyao/humor-api/svr/rest"
 	"github.com/wilenceyao/humor-svr/config"
-	"github.com/wilenceyao/humors"
 	"net/http"
 )
 
 type ApiImpl struct {
-	Adaptor *humors.HumorAdaptor
+	agentClient agentapi.AgentServiceClient
 }
 
 func (a *ApiImpl) Weather(c *gin.Context) {
@@ -30,10 +30,7 @@ func (a *ApiImpl) Weather(c *gin.Context) {
 	agentReq := &agentapi.WeatherRequest{
 		Request: req.Request,
 	}
-	agentRes := &agentapi.WeatherResponse{
-		Response: &common.BaseResponse{},
-	}
-	err = a.Adaptor.Call(config.Config.AgentClientID, int32(agentapi.Action_WEATHER), agentReq, agentRes)
+	agentRes, err := a.agentClient.Weather(context.Background(), config.Config.AgentClientID, agentReq)
 	if err != nil {
 		log.Error().Msgf("call agent err: %v", err)
 		res.Response.Code = common.ErrorCode_INTERNAL_ERROR
@@ -64,10 +61,7 @@ func (a *ApiImpl) SendTts(c *gin.Context) {
 		Request: req.Request,
 		Text:    req.Text,
 	}
-	agentRes := &agentapi.TtsResponse{
-		Response: &common.BaseResponse{},
-	}
-	err = a.Adaptor.Call(config.Config.AgentClientID, int32(agentapi.Action_TTS), agentReq, agentRes)
+	agentRes, err := a.agentClient.Tts(context.Background(), config.Config.AgentClientID, agentReq)
 	if err != nil {
 		log.Error().Msgf("call agent err: %v", err)
 		res.Response.Code = common.ErrorCode_INTERNAL_ERROR

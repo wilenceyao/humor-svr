@@ -5,6 +5,7 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+	agentapi "github.com/wilenceyao/humor-api/agent/humor"
 	"github.com/wilenceyao/humor-svr/config"
 	emq_client "github.com/wilenceyao/humor-svr/pkg/emq-client"
 	"github.com/wilenceyao/humors"
@@ -17,8 +18,9 @@ var DefaultServer *Server
 var LogFileWriter io.Writer
 
 type Server struct {
-	router   *gin.Engine
-	impl     *ApiImpl
+	router *gin.Engine
+	impl   *ApiImpl
+
 	humorSys *humors.Humors
 }
 
@@ -35,17 +37,23 @@ func RunServer() error {
 		log.Error().Msgf("InitEmqClient err: %+v", err)
 		return err
 	}
-	opts := MQTT.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("%s:%d", config.Config.MqttServer.IP, config.Config.MqttServer.Port))
-	opts.SetUsername(config.Config.MqttServer.Username)
-	opts.SetPassword(config.Config.MqttServer.Password)
-	opts.SetClientID(config.Config.MqttServer.ClientID)
+	mqttOpts := MQTT.NewClientOptions()
+	mqttOpts.AddBroker(fmt.Sprintf("%s:%d", config.Config.MqttServer.IP, config.Config.MqttServer.Port))
+	mqttOpts.SetUsername(config.Config.MqttServer.Username)
+	mqttOpts.SetPassword(config.Config.MqttServer.Password)
+	mqttOpts.SetClientID(config.Config.MqttServer.ClientID)
+	rpcOpts := &humors.RPCOptions{
+		Timeout: 2000,
+	}
+	opts := humors.Options{
+		MQTTOpts: mqttOpts,
+		RPCOpts:  rpcOpts,
+	}
 	h, err := humors.NewHumors(opts)
 	if err != nil {
 		log.Error().Msgf("humors init err: %v", err)
 		return err
 	}
-	h.InitAdaptor(2000)
 	DefaultServer = &Server{
 		humorSys: h,
 	}
@@ -53,7 +61,7 @@ func RunServer() error {
 	gin.DefaultWriter = stdlog.Writer()
 	DefaultServer.router = gin.Default()
 	DefaultServer.impl = &ApiImpl{
-		Adaptor: h.Adaptor,
+		agentClient: agentapi.NewAgentServiceClient(h),
 	}
 	DefaultServer.addApi()
 	return DefaultServer.router.Run(fmt.Sprintf(":%d", config.Config.Server.Port))
